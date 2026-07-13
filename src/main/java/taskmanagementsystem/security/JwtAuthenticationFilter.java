@@ -33,9 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
 
-        // Allow CORS preflight requests to pass
-        if (request.getMethod().equals("OPTIONS")) {
-            response.setStatus(HttpServletResponse.SC_OK);
+        // IMPORTANT: let CORS preflight pass
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -43,8 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
 
 
-        // No JWT token → continue normally
         if (header == null || !header.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -69,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
 
 
-            UsernamePasswordAuthenticationToken authToken =
+            UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             principal,
                             null,
@@ -77,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
 
-            authToken.setDetails(
+            authentication.setDetails(
                     new WebAuthenticationDetailsSource()
                             .buildDetails(request)
             );
@@ -85,7 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder
                     .getContext()
-                    .setAuthentication(authToken);
+                    .setAuthentication(authentication);
         }
 
 
