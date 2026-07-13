@@ -62,7 +62,7 @@ public class WebSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-                "https://work-nnsmief74-ashritha12.vercel.app"
+                "https://work-zen-ebon.vercel.app"
         ));
 
         config.setAllowedMethods(List.of(
