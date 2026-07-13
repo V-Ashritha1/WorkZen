@@ -18,6 +18,10 @@ import taskmanagementsystem.service.TaskService;
 @Tag(name = "Tasks", description = "CRUD, search, filtering and pagination for the authenticated user's tasks")
 @RestController
 @RequestMapping("/api/v1/tasks")
+@CrossOrigin(
+        origins = "https://work-nnsmief74-ashritha12.vercel.app",
+        allowCredentials = "true"
+)
 public class TaskController {
 
     private final TaskService service;
@@ -26,27 +30,24 @@ public class TaskController {
         this.service = service;
     }
 
-    // userId never comes from the URL or the request body — it's always
-    // read off the authenticated principal, which was derived from the
-    // verified JWT. A client cannot create/view/edit another user's tasks.
 
     @Operation(summary = "Create a task for the logged-in user")
     @PostMapping
-    public ResponseEntity<ApiResponse> createTask(@Valid @RequestBody TaskRequest request,
-                                                   @AuthenticationPrincipal CustomUserDetails currentUser) {
-        TaskResponse created = service.createTask(request, currentUser.getId());
-        return new ResponseEntity<>(new ApiResponse("Task Saved", created), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> createTask(
+            @Valid @RequestBody TaskRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        TaskResponse created =
+                service.createTask(request, currentUser.getId());
+
+        return new ResponseEntity<>(
+                new ApiResponse("Task Saved", created),
+                HttpStatus.CREATED
+        );
     }
 
-    @Operation(summary = "Get a single task by id (must belong to the logged-in user)")
-    @GetMapping("/{taskId}")
-    public ResponseEntity<ApiResponse> getTaskById(@PathVariable Integer taskId,
-                                                    @AuthenticationPrincipal CustomUserDetails currentUser) {
-        TaskResponse task = service.getTaskById(taskId, currentUser.getId());
-        return new ResponseEntity<>(new ApiResponse("Found task", task), HttpStatus.OK);
-    }
 
-    @Operation(summary = "List the logged-in user's tasks with optional search, filters, sorting and pagination")
+    @Operation(summary = "Get all tasks")
     @GetMapping
     public ResponseEntity<PageResponse<TaskResponse>> getAllTasks(
             @AuthenticationPrincipal CustomUserDetails currentUser,
@@ -58,38 +59,81 @@ public class TaskController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
-        PageResponse<TaskResponse> tasks = service.getTasks(
-                currentUser.getId(), completed, priority, keyword, page, size, sortBy, direction);
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+
+        PageResponse<TaskResponse> tasks =
+                service.getTasks(
+                        currentUser.getId(),
+                        completed,
+                        priority,
+                        keyword,
+                        page,
+                        size,
+                        sortBy,
+                        direction
+                );
+
+        return ResponseEntity.ok(tasks);
     }
 
-    @Operation(summary = "Update a task's title, details, priority or due date")
+
+    @Operation(summary = "Update task")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateTask(@PathVariable Integer id, @Valid @RequestBody TaskRequest request,
-                                                   @AuthenticationPrincipal CustomUserDetails currentUser) {
-        TaskResponse updated = service.updateTask(request, id, currentUser.getId());
-        return new ResponseEntity<>(new ApiResponse("Task updated!", updated), HttpStatus.OK);
+    public ResponseEntity<ApiResponse> updateTask(
+            @PathVariable Integer id,
+            @Valid @RequestBody TaskRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
+        TaskResponse updated =
+                service.updateTask(request, id, currentUser.getId());
+
+        return ResponseEntity.ok(
+                new ApiResponse("Task updated!", updated)
+        );
     }
 
-    @Operation(summary = "Delete a task")
+
+    @Operation(summary = "Delete task")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTaskById(@PathVariable Integer id,
-                                                  @AuthenticationPrincipal CustomUserDetails currentUser) {
+    public ResponseEntity<String> deleteTaskById(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
         service.deleteTask(id, currentUser.getId());
+
         return ResponseEntity.ok("Task deleted successfully");
     }
 
-    @Operation(summary = "Mark a task as done")
+
+    @Operation(summary = "Mark task as done")
     @PatchMapping("/{id}/task-done")
-    public ResponseEntity<ApiResponse> completedTodo(@PathVariable Integer id,
-                                                       @AuthenticationPrincipal CustomUserDetails currentUser) {
-        return ResponseEntity.ok(new ApiResponse("Task done", service.doneTask(id, currentUser.getId())));
+    public ResponseEntity<ApiResponse> completedTodo(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "Task done",
+                        service.doneTask(id, currentUser.getId())
+                )
+        );
     }
 
-    @Operation(summary = "Mark a task as pending")
+
+    @Operation(summary = "Mark task as pending")
     @PatchMapping("/{id}/task-pending")
-    public ResponseEntity<ApiResponse> inCompletedTodo(@PathVariable Integer id,
-                                                         @AuthenticationPrincipal CustomUserDetails currentUser){
-        return ResponseEntity.ok(new ApiResponse("Task pending", service.pendingTask(id, currentUser.getId())));
+    public ResponseEntity<ApiResponse> inCompletedTodo(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "Task pending",
+                        service.pendingTask(id, currentUser.getId())
+                )
+        );
     }
 }
