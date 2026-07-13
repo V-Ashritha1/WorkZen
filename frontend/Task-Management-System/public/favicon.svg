@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#8B5E3C"/>
+  <path
+    d="M16 7l1.2 3.6h3.8l-3.1 2.3 1.2 3.6L16 14.2l-3.1 2.3 1.2-3.6-3.1-2.3h3.8L16 7z"
+    fill="#C8A97E"
+    opacity="0.95"
+  />
+  <path
+    d="M9 19.5l.8 2.4h2.5l-2 1.5.8 2.4L9 23.4l-2 1.5.8-2.4-2-1.5h2.5L9 19.5z"
+    fill="#FFF9F0"
+    opacity="0.85"
+  />
+  <path
+    d="M23 19.5l.8 2.4h2.5l-2 1.5.8 2.4-2.4-1.9.8-2.4-2-1.5h2.5l.8-2.4z"
+    fill="#FFF9F0"
+    opacity="0.85"
+  />
+</svg>

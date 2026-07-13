@@ -1,0 +1,45 @@
+.center-in-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.home-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-5);
+}
+
+.center-in-page h1 {
+  font-weight: 800;
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  margin-bottom: 0;
+}
+
+.center-in-page h1 span {
+  color: var(--color-accent);
+}
+
+.center-in-page .lead {
+  font-size: 1.12rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  margin: var(--space-5) auto var(--space-6);
+  line-height: 1.65;
+}
+
+.home-cta .btn {
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.75rem;
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.home-cta .btn + .btn {
+  margin-left: 0;
+}
