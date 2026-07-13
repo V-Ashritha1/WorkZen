@@ -28,6 +28,7 @@ public class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
@@ -36,25 +37,30 @@ public class WebSecurityConfig {
 
                 .cors(Customizer.withDefaults())
 
-                .authorizeHttpRequests(auth ->
-                        auth
-                                // Allow browser CORS preflight requests
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
 
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/health").permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Allow browser preflight CORS requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                                .requestMatchers("/api/v1/**").hasAnyAuthority("ADMIN", "USER")
+                        // Public APIs
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/health").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                                .anyRequest().authenticated()
+                        // Protected APIs
+                        .requestMatchers("/api/v1/**").hasAnyAuthority("ADMIN", "USER")
+
+                        .anyRequest().authenticated()
                 )
 
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
 
                 .build();
     }
@@ -81,6 +87,7 @@ public class WebSecurityConfig {
 
         configuration.setAllowCredentials(true);
 
+
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
@@ -94,12 +101,14 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
     ) throws Exception {
+
         return config.getAuthenticationManager();
     }
 
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 }

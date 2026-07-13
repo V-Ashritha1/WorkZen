@@ -15,13 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Runs once per request. If a valid "Authorization: Bearer <token>" header
- * is present, it builds an authenticated principal (CustomUserDetails,
- * carrying the real user id from the token) and places it in the
- * SecurityContext. Controllers then read the current user from there via
- * @AuthenticationPrincipal instead of trusting a path variable.
- */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -31,36 +24,70 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                     @NonNull HttpServletResponse response,
-                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+
+
+        // Allow CORS preflight requests to pass
+        if (request.getMethod().equals("OPTIONS")) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
 
         String header = request.getHeader("Authorization");
 
+
+        // No JWT token → continue normally
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+
         String token = header.substring(7);
 
+
         if (jwtUtil.isTokenValid(token)) {
+
             Long userId = jwtUtil.extractUserId(token);
             String username = jwtUtil.extractUsername(token);
             String role = jwtUtil.extractRole(token);
 
+
             CustomUserDetails principal = new CustomUserDetails();
+
             principal.setId(userId);
             principal.setUsername(username);
-            principal.setAuthorities(List.of(new SimpleGrantedAuthority(role)));
+            principal.setAuthorities(
+                    List.of(new SimpleGrantedAuthority(role))
+            );
 
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    principal, null, principal.getAuthorities());
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            principal,
+                            null,
+                            principal.getAuthorities()
+                    );
+
+
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource()
+                            .buildDetails(request)
+            );
+
+
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authToken);
         }
+
 
         filterChain.doFilter(request, response);
     }
