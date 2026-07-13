@@ -66,7 +66,7 @@ Task-Management-System-master/
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/V-Ashritha1/YOUR_REPOSITORY.git
+git clone https://github.com/V-Ashritha1/WorkZen.git
 cd Task-Management-System-master
 ```
 
